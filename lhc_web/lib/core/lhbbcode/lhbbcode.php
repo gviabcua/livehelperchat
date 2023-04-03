@@ -851,12 +851,18 @@ class erLhcoreClassBBCode
                         }
 
                         $audio = '';
-                        if (in_array($fileExtension,['mp3','wav','ogg','oga'])) {
-                            return '<a rel="noreferrer" class="hidden-download audio-download" href="'. self::getHost() . erLhcoreClassDesign::baseurl('file/downloadfile') . "/{$file->id}/{$hash}".'"></a><audio preload="none" style="width: 230px" controls><source src="' . self::getHost() . erLhcoreClassDesign::baseurl('file/downloadfile') . "/{$file->id}/{$hash}" . '" type="' . $file->type . '"></audio>';
-                        } elseif (in_array($fileExtension,['mp4','avi','mov','ogg','3gpp'])) {
-                            $audio = '<br><div class="embed-responsive embed-responsive-16by9"><video class="embed-responsive-item" controls><source src="' . self::getHost() . erLhcoreClassDesign::baseurl('file/downloadfile') . "/{$file->id}/{$hash}" . '"></video></div>';
-                        }
-
+			if (in_array($fileExtension,['mp3','wav','ogg','oga'])) {
+   				 return '<a rel="noreferrer" class="hidden-download audio-download" href="'. self::getHost() . erLhcoreClassDesign::baseurl('file/downloadfile') . "/{$file->id}/{$hash}".'"></a><audio preload="none" style="width: 230px" controls><source src="' . self::getHost() . erLhcoreClassDesign::baseurl('file/downloadfile') . "/{$file->id}/{$hash}" . '" type="' . $file->type . '"></audio>';
+			} elseif (in_array($fileExtension,['mp4','avi','mov','ogg','3gpp'])) {
+    				$audio = '<br><div class="embed-responsive embed-responsive-16by9"><video class="embed-responsive-item" controls><source src="' . self::getHost() . erLhcoreClassDesign::baseurl('file/downloadfile') . "/{$file->id}/{$hash}" . '"></video></div>';
+			} elseif (in_array($fileExtension,['jpg','jpeg','png','webp'])) {
+				$audio = ' <a rel="noreferrer" class="link" onclick="$(\'#img-file-' . $file->id . '\').toggleClass(\'hide\')"><i class="material-icons mr-0">&#xE251;</i></a><br/>
+<img style="max-width:300px;" id="img-file-' . $file->id . '" class="img-fluid" src="//' . $_SERVER['HTTP_HOST'] . erLhcoreClassDesign::baseurl('file/downloadfile') . "/{$file->id}/{$hash}" . '" alt="" />';
+			}
+			// unsupported extension
+			else if ($fileExtension == 'tgs') {
+				$audio = 'Формат стікера ' . $fileExtension . 'не підтримується';
+			}
                         return "<a href=\"" . self::getHost() . erLhcoreClassDesign::baseurl('file/downloadfile') . "/{$file->id}/{$hash}\" target=\"_blank\" rel=\"noreferrer\" class=\"link\" >" . erTranslationClassLhTranslation::getInstance()->getTranslation('file/file', 'Download file') . ' - ' . htmlspecialchars($file->upload_name) . ' [' . $file->extension . ']' . "</a>" . $audio;
                     }
                 }
