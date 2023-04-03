@@ -767,5 +767,11 @@ $FunctionList['editpreviousop'] = array('explain' => 'Allow operator to edit oth
 $FunctionList['editpreviouvis'] = array('explain' => 'Allow operator to edit visitors previous messages');
 $FunctionList['impersonate'] = array('explain' => 'Allow operator to impersonate another operator on joining chat window');
 $FunctionList['allowtransfertoanydep'] = array('explain' => 'Allow operator to transfer chat to any department.');
+$FunctionList['list_all_chats'] = array('explain' => 'Allow operator to list all chats independently of operator and status.');
+$FunctionList['list_my_chats'] = array('explain' => 'Allow operator to list chats he is owner');
+$FunctionList['list_pending_chats'] = array('explain' => 'Allow operator to list chats without an owner and in status pending.');
+$FunctionList['use_unhidden_phone'] = array('explain' => 'Allow operator to see full phone number');
+$FunctionList['chat_see_email'] = array('explain' => 'Allow operator to see e-mail of the visitor');
+$FunctionList['chat_see_unhidden_email'] = array('explain' => 'Allow operator to see full e-mail address of the visitor');
 
 ?>

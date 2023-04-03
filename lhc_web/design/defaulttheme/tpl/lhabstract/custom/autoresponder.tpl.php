@@ -21,6 +21,7 @@
     <?php endif; ?>
 
     var languageDialects = <?php echo json_encode(array_values(erLhcoreClassModelSpeechLanguageDialect::getDialectsGrouped()))?>;
+    window.replaceDepartments = <?php $items = []; foreach (erLhcoreClassModelDepartament::getList(['limit' => false]) as $itemDepartment) { $items[$itemDepartment->id] = $itemDepartment->name; }; echo json_encode($items) ?>;
 </script>
 
 <div ng-controller="AutoResponderCtrl as cmsg" class="ng-cloak" ng-cloak ng-init='cmsg.setDialects();<?php if (!empty($object->languages_ignore)) : ?>cmsg.setIgnoreLanguages();<?php endif; ?><?php if ($object->languages != '') : ?>cmsg.setLanguages();<?php endif;?>'>
@@ -40,10 +41,13 @@
 <?php echo erLhcoreClassAbstract::renderInput('position', $fields['position'], $object)?>
 </div>
 
+<?php /*
 <div class="form-group">
 <label><?php echo $fields['dep_id']['trans'];?></label>
 <?php echo erLhcoreClassAbstract::renderInput('dep_id', $fields['dep_id'], $object)?>
-</div>
+</div>*/ ?>
+
+<?php include(erLhcoreClassDesign::designtpl('lhabstract/custom/responder/department.tpl.php')); ?>
 
 <div class="row">
     <div class="col-6">

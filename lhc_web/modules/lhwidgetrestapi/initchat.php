@@ -207,6 +207,10 @@ try {
                     $outputResponse['chat_ui']['custom_html_header_body'] = $theme->bot_configuration_array['custom_html_header_body'];
                 }
 
+                if (isset($theme->bot_configuration_array['after_chat_status']) && $theme->bot_configuration_array['after_chat_status'] != '') {
+                    $outputResponse['chat_ui']['after_chat_status'] = $theme->bot_configuration_array['after_chat_status'];
+                }
+
                 if (isset($theme->bot_configuration_array['prev_msg']) && $theme->bot_configuration_array['prev_msg'] == true) {
                     if ($chat->online_user instanceof erLhcoreClassModelChatOnlineUser) {
 
@@ -328,7 +332,13 @@ try {
 
         $voiceData = (array)erLhcoreClassModelChatConfig::fetch('vvsh_configuration')->data;
 
-        if (isset($voiceData['voice']) && $voiceData['voice'] == true) {
+        if (
+            isset($voiceData['voice']) && 
+            $voiceData['voice'] == true && 
+            $chat->status == erLhcoreClassModelChat::STATUS_ACTIVE_CHAT &&
+            $chat->user_id > 0 &&
+            erLhcoreClassRole::hasAccessTo($chat->user_id,'lhvoicevideo','use' )
+        ) {
             $outputResponse['chat_ui']['voice'] = true;
         }
 

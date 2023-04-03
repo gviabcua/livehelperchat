@@ -1,3 +1,43 @@
+4.22v
+
+1. Department assignment now have new UI.
+2. Department assignment operator can have custom nick per department.
+
+execute doc/update_db/update_294.sql for update
+
+4.21v
+
+1. Chat list now can show custom columns also.
+2. Various other changes
+
+execute doc/update_db/update_293.sql for update
+
+4.20v
+
+1. Options to have expire-able canned message with auto delete.
+2. Option to have one time period canned message without expire date.
+
+execute doc/update_db/update_292.sql for update
+
+4.19v
+
+1. Inline survey support. You can send inline survey from bot.
+1.1 Limitations: `stars` at the moment are not supported. Will be added in feature releases.
+2. Auto responder active period options.
+
+execute doc/update_db/update_291.sql for update
+
+4.18v
+
+1. Auto responder can be assigned to multiple departments at once.
+2. Replaceable variables can have active period per replace.
+3. Respect operator permission for calls module before showing call icon in the widget.
+4. Fast typing fixes for canned messages.
+5. Dark mode fixes after migration to bootstrap 5.
+6. Widgets will show how long it took to fetch specific widget information.
+
+execute doc/update_db/update_290.sql for update
+
 4.17v
 
 1. Advanced chat auto assignment options.
