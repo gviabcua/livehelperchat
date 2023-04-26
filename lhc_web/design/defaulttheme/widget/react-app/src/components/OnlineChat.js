@@ -481,7 +481,6 @@ class OnlineChat extends Component {
             if (prevProps.chatwidget.getIn(['chatLiveData','messages']).size != 0 && this.props.chatwidget.getIn(['chatLiveData','uw']) === false) {
                 let widgetOpen = ((this.props.chatwidget.get('shown') && this.props.chatwidget.get('mode') == 'widget') || (this.props.chatwidget.get('mode') != 'widget' && document.hasFocus()));
                 if (hasNewMessages == false) {
-                    console.log(this.state.messages_ui);
                     hasNewMessages = widgetOpen == false || window.lhcChat['is_focused'] == false || setScrollBottom == false || this.state.messages_ui === false;
                     oldId = hasNewMessages == true ? prevProps.chatwidget.getIn(['chatLiveData','messages']).size : 0;
                     otm = this.props.chatwidget.getIn(['chatLiveData','otm']);
@@ -700,15 +699,17 @@ class OnlineChat extends Component {
     keyUp(e) {
         if (e.key !== 'Enter' && !e.shiftKey) {
             if (this.isTyping === false) {
+                const { t } = this.props;
                 this.isTyping = true;
-                this.props.dispatch(userTyping('true',this.state.value));
+                this.props.dispatch(userTyping('true',this.props.chatwidget.hasIn(['chat_ui','hide_typing']) &&  this.props.chatwidget.getIn(['chat_ui','hide_typing']) === true ? t('online_chat.visitor_typing') : this.state.value));
             } else {
                 clearTimeout(this.typingStopped);
                 this.typingStopped = setTimeout(this.typingStoppedAction, 6000);
                 if (this.currentMessageTyping != this.state.value ) {
                     if (Math.abs(this.currentMessageTyping.length - this.state.value.length) > 6 || this.props.chatwidget.get('overrides').contains('typing')) {
+                        const { t } = this.props;
                         this.currentMessageTyping = this.state.value;
-                        this.props.dispatch(userTyping('true',this.state.value));
+                        this.props.dispatch(userTyping('true', this.props.chatwidget.hasIn(['chat_ui','hide_typing']) &&  this.props.chatwidget.getIn(['chat_ui','hide_typing']) === true ? t('online_chat.visitor_typing') : this.state.value));
                     }
                 }
             }
@@ -974,7 +975,7 @@ class OnlineChat extends Component {
                             {this.props.chatwidget.hasIn(['chat_ui','prev_chat']) && <div dangerouslySetInnerHTML={{__html:this.props.chatwidget.getIn(['chat_ui','prev_chat'])}}></div>}
                             {messages}
                         </div>
-                        {this.state.scrollButton && <div className="position-absolute btn-bottom-scroll fade-in"><button type="button" onClick={this.scrollToMessage} className="btn btn-sm btn-secondary">{(this.state.hasNew && this.state.otm > 0 && <div><i className="material-icons">&#xf11a;</i>{this.state.otm} {(this.state.otm == 1 ? (this.props.chatwidget.getIn(['chat_ui','cnew_msg']) || t('button.new_msg')) : (this.props.chatwidget.getIn(['chat_ui','cnew_msgm']) || t('button.new_msgm')))}</div>) || (this.props.chatwidget.getIn(['chat_ui','cscroll_btn']) || t('button.scroll_bottom'))}</button></div>}
+                        {this.state.scrollButton && <div className="position-absolute btn-bottom-scroll fade-in" id="id-btn-bottom-scroll"><button type="button" onClick={this.scrollToMessage} className="btn btn-sm btn-secondary">{(this.state.hasNew && this.state.otm > 0 && <div><i className="material-icons">&#xf11a;</i>{this.state.otm} {(this.state.otm == 1 ? (this.props.chatwidget.getIn(['chat_ui','cnew_msg']) || t('button.new_msg')) : (this.props.chatwidget.getIn(['chat_ui','cnew_msgm']) || t('button.new_msgm')))}</div>) || (this.props.chatwidget.getIn(['chat_ui','cscroll_btn']) || t('button.scroll_bottom'))}</button></div>}
                     </div>
 
                     <div className={(this.props.chatwidget.get('msgLoaded') === false || this.state.enabledEditor === false ? 'd-none ' : 'd-flex ') + "flex-row border-top position-relative message-send-area"} >
