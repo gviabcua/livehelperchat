@@ -197,7 +197,41 @@ if (is_object($chat) && $chat->hash === $requestPayload['hash'])
 		    	$saveChat = true;
 		    }
 
-		    if ($chat->has_unread_op_messages == 1)
+            if (($chat->has_unread_op_messages == 1 && isset($requestPayload['active_widget']) && $requestPayload['active_widget'] === true) || (isset($requestPayload['lmgsid']) && isset($Messages) && count($Messages) > 0)) {
+                if (isset($requestPayload['active_widget']) && $requestPayload['active_widget'] === true) {
+
+                    // Sometimes lock happens. We can ignore those. As this is not a major thing.
+                    try {
+                        $db->query('UPDATE `lh_msg` SET `del_st` = 3 WHERE `chat_id` = ' . (int)$chat->id . ' AND `del_st` IN (0,1,2) AND (`user_id` > 0 OR `user_id` = -2)');
+                    } catch (Exception $e) {
+
+                    }
+
+                    if ($chat->status_sub_sub == erLhcoreClassModelChat::STATUS_SUB_SUB_MSG_DELIVERED) {
+                        $chat->status_sub_sub = erLhcoreClassModelChat::STATUS_SUB_SUB_DEFAULT;
+                        $updateFields[] = 'status_sub_sub';
+                        $saveChat = true;
+                    }
+                    erLhcoreClassChatEventDispatcher::getInstance()->dispatch('chat.messages_read',array('chat' => & $chat));
+                } else {
+
+                    // Sometimes lock happens. We can ignore those. As this is not a major thing.
+                    try {
+                        $db->query('UPDATE `lh_msg` SET `del_st` = 2 WHERE `chat_id` = ' . (int)$chat->id . ' AND `del_st` IN (0,1) AND (`user_id` > 0 OR `user_id` = -2)');
+                    } catch (Exception $e) {
+
+                    }
+
+                    if ($chat->status_sub_sub == erLhcoreClassModelChat::STATUS_SUB_SUB_DEFAULT) {
+                        $chat->status_sub_sub = erLhcoreClassModelChat::STATUS_SUB_SUB_MSG_DELIVERED;
+                        $updateFields[] = 'status_sub_sub';
+                        $saveChat = true;
+                    }
+                    erLhcoreClassChatEventDispatcher::getInstance()->dispatch('chat.messages_delivered',array('chat' => & $chat));
+                }
+            }
+
+		    if ($chat->has_unread_op_messages == 1 && isset($requestPayload['active_widget']) && $requestPayload['active_widget'] === true)
 		    {
 		    	$chat->unread_op_messages_informed = 0;
 		    	$chat->has_unread_op_messages = 0;
@@ -226,6 +260,18 @@ if (is_object($chat) && $chat->hash === $requestPayload['hash'])
 
 	} catch (Exception $e) {
 	    $db->rollback();
+
+        // Store log
+        erLhcoreClassLog::write($e->getMessage() . ' - ' . $e->getTraceAsString(),
+            ezcLog::SUCCESS_AUDIT,
+            array(
+                'source' => 'lhc',
+                'category' => 'store',
+                'line' => $e->getLine(),
+                'file' => 'fetchmessages.php',
+                'object_id' => $requestPayload['chat_id']
+            )
+        );
 	}
 
 } else {

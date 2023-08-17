@@ -77,7 +77,7 @@ class erLhAbstractModelAutoResponderChat
                 $msg->name_support = $this->chat->user !== false ? $this->chat->user->name_support : ($this->auto_responder->operator != '' ? $this->auto_responder->operator : erTranslationClassLhTranslation::getInstance()->getTranslation('chat/startchat', 'Live Support'));
                 $msg->user_id = $this->chat->user_id > 0 ? $this->chat->user_id : - 2;
                 $msg->time = time();
-                erLhcoreClassChat::getSession()->save($msg);
+                $msg->saveThis();
 
                 \LiveHelperChat\Models\Departments\UserDepAlias::getAlias(array('scope' => 'msg', 'msg' => & $msg, 'chat' => $this->chat));
                 erLhcoreClassChatEventDispatcher::getInstance()->dispatch('chat.before_msg_admin_saved', array('msg' => & $msg, 'chat' => & $this->chat));
@@ -129,7 +129,7 @@ class erLhAbstractModelAutoResponderChat
                                 $this->chat->last_msg_id = $msg->id;
                             }
 
-                            erLhcoreClassChat::getSession()->save($msg);
+                            $msg->saveThis();
                         }
                     } elseif ($this->pending_send_status >= 1 && $this->pending_send_status < 5) {
                         for ($i = 5; $i >= 2; $i --) {
@@ -151,7 +151,7 @@ class erLhAbstractModelAutoResponderChat
                                     \LiveHelperChat\Models\Departments\UserDepAlias::getAlias(array('scope' => 'msg', 'msg' => & $msg, 'chat' => & $this->chat));
                                     erLhcoreClassChatEventDispatcher::getInstance()->dispatch('chat.before_auto_responder_msg_saved', array('msg' => & $msg, 'chat' => & $this->chat));
 
-                                    erLhcoreClassChat::getSession()->save($msg);
+                                    $msg->saveThis();
 
                                     $this->chat->last_msg_id = $msg->id;
                                     $this->chat->updateThis(array('update' => array('last_msg_id')));
@@ -170,6 +170,7 @@ class erLhAbstractModelAutoResponderChat
 
                 // Do not reset auto responder if visitor was redirected to survey
                 if (
+                    PHP_SAPI != 'cli' && // We do not that to be executed in the background
                     !(isset($botConfiguration['dreset_survey']) && $botConfiguration['dreset_survey'] == 1 && $this->chat->status_sub == erLhcoreClassModelChat::STATUS_SUB_SURVEY_SHOW) &&
                     (isset($botConfiguration['mint_reset']) && $botConfiguration['mint_reset'] > 0) &&
                     (isset($botConfiguration['maxt_reset']) && $botConfiguration['maxt_reset'] > 0))
@@ -204,7 +205,7 @@ class erLhAbstractModelAutoResponderChat
                         \LiveHelperChat\Models\Departments\UserDepAlias::getAlias(array('scope' => 'msg', 'msg' => & $msg, 'chat' => & $this->chat));
                         erLhcoreClassChatEventDispatcher::getInstance()->dispatch('chat.before_auto_responder_msg_saved', array('msg' => & $msg, 'chat' => & $this->chat));
 
-                        erLhcoreClassChat::getSession()->save($msg);
+                        $msg->saveThis();
 
                         $this->chat->last_msg_id = $msg->id;
                         $this->chat->updateThis(array('update' => array('last_msg_id','status_sub','last_user_msg_time','last_op_msg_time','lsync','last_user_msg_time')));
@@ -228,7 +229,7 @@ class erLhAbstractModelAutoResponderChat
                             \LiveHelperChat\Models\Departments\UserDepAlias::getAlias(array('scope' => 'msg', 'msg' => & $msg, 'chat' => & $this->chat));
                             erLhcoreClassChatEventDispatcher::getInstance()->dispatch('chat.before_auto_responder_msg_saved', array('msg' => & $msg, 'chat' => & $this->chat));
 
-                            erLhcoreClassChat::getSession()->save($msg);
+                            $msg->saveThis();
 
                             $this->chat->last_msg_id = $msg->id;
                             $this->chat->cls_us = $this->chat->user_status_front + 1;
@@ -265,7 +266,7 @@ class erLhAbstractModelAutoResponderChat
                                     \LiveHelperChat\Models\Departments\UserDepAlias::getAlias(array('scope' => 'msg', 'msg' => & $msg, 'chat' => & $this->chat));
                                     erLhcoreClassChatEventDispatcher::getInstance()->dispatch('chat.before_auto_responder_msg_saved', array('msg' => & $msg, 'chat' => & $this->chat));
 
-                                    erLhcoreClassChat::getSession()->save($msg);
+                                    $msg->saveThis();
 
                                     $this->chat->last_msg_id = $msg->id;
                                     $this->chat->updateThis(array('update' => array('last_msg_id')));
@@ -303,7 +304,7 @@ class erLhAbstractModelAutoResponderChat
                                     \LiveHelperChat\Models\Departments\UserDepAlias::getAlias(array('scope' => 'msg', 'msg' => & $msg, 'chat' => & $this->chat));
                                     erLhcoreClassChatEventDispatcher::getInstance()->dispatch('chat.before_auto_responder_msg_saved', array('msg' => & $msg, 'chat' => & $this->chat));
 
-                                    erLhcoreClassChat::getSession()->save($msg);
+                                    $msg->saveThis();
 
                                     $this->chat->last_msg_id = $msg->id;
                                     $this->chat->updateThis(array('update' => array('last_msg_id')));
@@ -347,7 +348,7 @@ class erLhAbstractModelAutoResponderChat
                                 \LiveHelperChat\Models\Departments\UserDepAlias::getAlias(array('scope' => 'msg', 'msg' => & $msg, 'chat' => & $this->chat));
                                 erLhcoreClassChatEventDispatcher::getInstance()->dispatch('chat.before_auto_responder_msg_saved', array('msg' => & $msg, 'chat' => & $this->chat));
 
-                                erLhcoreClassChat::getSession()->save($msg);
+                                $msg->saveThis();
 
                                 $this->chat->last_msg_id = $msg->id;
                                 $this->chat->updateThis(array('update' => array('last_msg_id')));

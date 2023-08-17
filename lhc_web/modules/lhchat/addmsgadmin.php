@@ -36,10 +36,24 @@ if (trim($form->msg) != '')
             $asChatOwner = isset($_POST['mode_write']) && $_POST['mode_write'] == 'op' && $Chat->user_id > 0 && $Chat->user_id != $messageUserId && erLhcoreClassUser::instance()->hasAccessTo('lhchat','impersonate');
 
 	        if (!$whisper && strpos($msgText, '!') === 0) {
+
+                $lastMessageId = $Chat->last_msg_id;
+
 	            $statusCommand = erLhcoreClassChatCommand::processCommand(array('user' => $userData, 'msg' => $msgText, 'chat' => & $Chat));
 	            if ($statusCommand['processed'] === true) {
 	                $messageUserId = -1; // Message was processed set as internal message
-	                
+
+                    // Find a new possible bot messages and trigger message added events for third party integrations
+                    $botMessages = erLhcoreClassModelmsg::getList(array('filterin' => ['user_id' => [($Chat->user_id > 0 ? $Chat->user_id : -2), -2]],'filter' => array( 'chat_id' => $Chat->id), 'filtergt' => array('id' => $lastMessageId)));
+
+                    foreach ($botMessages as $botMessage) {
+                        erLhcoreClassChatEventDispatcher::getInstance()->dispatch('chat.web_add_msg_admin', array(
+                            'chat' => & $Chat,
+                            'msg' => $botMessage,
+                            'no_auto_events' => true    // Some triggers updates last message and webhooks them self sends this event, we want to avoid that
+                        ));
+                    }
+
 	                $rawMessage = !isset($statusCommand['raw_message']) ? $msgText : $statusCommand['raw_message'];
 	                
 	                $msgText = trim('[b]'.$userData->name_support.'[/b]: '.$rawMessage .' '. ($statusCommand['process_status'] != '' ? '|| '.$statusCommand['process_status'] : ''));
@@ -74,6 +88,7 @@ if (trim($form->msg) != '')
     	        $msg->user_id = $messageUserId;
     	        $msg->time = time();
     	        $msg->name_support = $userData->name_support;
+                $msg->del_st = erLhcoreClassModelmsg::STATUS_SENT;
 
                 if ($msg->user_id > 0 && $asChatOwner == true) {
                     $messageUserId = $msg->user_id = $Chat->user_id;
@@ -149,6 +164,10 @@ if (trim($form->msg) != '')
                     if (!$whisper && $Chat->status != erLhcoreClassModelChat::STATUS_CLOSED_CHAT) {
                         $Chat->has_unread_op_messages = 1;
                         $updateFields[] = 'has_unread_op_messages';
+                        if ($Chat->status_sub_sub == erLhcoreClassModelChat::STATUS_SUB_SUB_MSG_DELIVERED) {
+                            $Chat->status_sub_sub = erLhcoreClassModelChat::STATUS_SUB_SUB_DEFAULT;
+                            $updateFields[] = 'status_sub_sub';
+                        }
                     }
 
     	        	if (!$whisper && $Chat->unread_op_messages_informed != 0) {

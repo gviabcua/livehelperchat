@@ -148,6 +148,12 @@ $ViewList['updatemsg'] = array(
     'functions' => array( 'use' )
 );
 
+$ViewList['updatemessagedata'] = array(
+    'params' => array('chat_id', 'hash', 'msg_id'),
+    'uparams' => array(),
+    'functions' => array(  )
+);
+
 $ViewList['printchatadmin'] = array(
     'params' => array('chat_id'),
     'uparams' => array(),
@@ -647,7 +653,7 @@ $ViewList['syncandsoundesetting'] = array(
 
 $ViewList['cannedmsg'] = array(
     'params' => array(),
-    'uparams' => array('action','id','csfr','message','title','fmsg','department_id','subject_id','tab','user_id','timefrom','timeto','sortby'),
+    'uparams' => array('action','id','csfr','message','title','fmsg','department_id','subject_id','tab','user_id','timefrom','timeto','sortby','export','used_freq'),
     'functions' => array( 'explorecannedmsg' ),
     'multiple_arguments' => array(
         'department_id',
@@ -774,5 +780,6 @@ $FunctionList['use_unhidden_phone'] = array('explain' => 'Allow operator to see 
 $FunctionList['chat_see_email'] = array('explain' => 'Allow operator to see e-mail of the visitor');
 $FunctionList['chat_see_unhidden_email'] = array('explain' => 'Allow operator to see full e-mail address of the visitor');
 $FunctionList['see_sensitive_information'] = array('explain' => 'Allow operator to see sensitive information in the messages');
+$FunctionList['my_chats_filter'] = array('explain' => 'Allow operator to see department filter for my active pending chats widget');
 
 ?>

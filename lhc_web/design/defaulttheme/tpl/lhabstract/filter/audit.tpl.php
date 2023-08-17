@@ -102,6 +102,7 @@
         <datalist id="category_list" autocomplete="new-password">
             <option value="js">js</option>
             <option value="block">block</option>
+            <option value="store">store</option>
             <option value="cronjob_exception">cronjob_exception</option>
             <option value="cronjob_fatal">cronjob_fatal</option>
             <option value="slow_view">slow_view</option>
@@ -122,6 +123,7 @@
             <option value="ChatConfig">ChatConfig</option>
             <option value="incoming_webhook_parse">Incoming webhook parse failures</option>
             <option value="incoming_webhook">Incoming webhook request</option>
+            <option value="extract_department">Invalid department argument</option>
             <?php include(erLhcoreClassDesign::designtpl('lhabstract/filter/audit/category_list_multiinclude.tpl.php'));?>
         </datalist>
     </div>

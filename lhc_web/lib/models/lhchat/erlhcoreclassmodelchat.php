@@ -239,6 +239,10 @@ class erLhcoreClassModelChat {
        		   $this->wait_time_seconds = time() - max($this->time,$this->pnd_time);
        		   return $this->wait_time_seconds;
 
+       case 'last_msg':
+           $this->last_msg = erLhcoreClassModelmsg::fetch($this->last_msg_id);
+           return $this->last_msg;
+
        case 'last_msg_time':
             $this->last_msg_time = max($this->last_user_msg_time, $this->last_op_msg_time);
             return $this->last_msg_time;
@@ -394,7 +398,14 @@ class erLhcoreClassModelChat {
        	case 'product_name':
        			$this->product_name = (string)$this->product;
        			return $this->product_name;
-       		break;
+
+       case 'subject_ids':
+           $this->subject_ids = erLhAbstractModelSubjectChat::getCount(['filter' => ['chat_id' => $this->id]],'count','subject_id','subject_id',false, true, true);
+           return $this->subject_ids;
+
+       case 'subject_ids_list':
+           $this->subject_ids_list = implode(',',$this->subject_ids);
+           return $this->subject_ids_list;
 
        	case 'department_role':
                 $this->department_role = \LiveHelperChat\Models\Brand\BrandMember::findOne(['filter' => ['dep_id' => $this->dep_id]]);
@@ -692,6 +703,7 @@ class erLhcoreClassModelChat {
    const STATUS_SUB_SUB_DEFAULT = 0;
    const STATUS_SUB_SUB_TRANSFERED = 1;
    const STATUS_SUB_SUB_CLOSED = 2; // Chat was previously closed, but became pending again.
+   const STATUS_SUB_SUB_MSG_DELIVERED = 3; // Chat was previously closed, but became pending again.
 
    const USER_STATUS_JOINED_CHAT = 0;
    const USER_STATUS_CLOSED_CHAT = 1;

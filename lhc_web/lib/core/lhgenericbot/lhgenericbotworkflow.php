@@ -2321,6 +2321,10 @@ class erLhcoreClassGenericBotWorkflow {
                 }
             }
         }
+        
+        if (strpos($message,'{base_url}') !== false) {
+            $message = str_replace('{base_url}',erLhcoreClassSystem::getHost(),$message);
+        }
 
         $matches = array();
         preg_match_all('~\{((?:[^\{\}]++|(?R))*)\}~',$message,$matches);
@@ -2510,7 +2514,19 @@ class erLhcoreClassGenericBotWorkflow {
                     $conditionsToValidate = \LiveHelperChat\Models\Bot\Condition::getList(['filter' => ['identifier' => $matchesValues[1][$indexElement]]]);
 
                     if (empty($conditionsToValidate)) {
-                        $message = str_replace($elementValue,  'not_valid',$message);
+
+                        $commandResponse = erLhcoreClassChatEventDispatcher::getInstance()->dispatch('chat.condition_replace', array(
+                            'identifier' => $matchesValues[1][$indexElement],
+                            'element' => $elementValue,
+                            'msg' => & $message,
+                            'rule_value' => $params['rule_value'],
+                            'chat' => & $params['chat']
+                        ));
+
+                        if (!(isset($commandResponse['processed']) && $commandResponse['processed'] == true)) {
+                            $message = str_replace($elementValue,  'not_valid', $message);
+                        }
+
                     } else {
                         foreach ($conditionsToValidate as $conditionToValidate) {
                             $message = str_replace($elementValue, ($conditionToValidate->isValid($params) ? 'valid' : 'not_valid'), $message);

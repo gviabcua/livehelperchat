@@ -561,9 +561,7 @@ class erLhcoreClassChatValidator {
         } elseif ($chat->department !== false) {
            $department = $chat->department;
         }
-        
 
-        
         if ($department !== false && $department->inform_unread == 1) {
         	$chat->reinform_timeout = $department->inform_unread_delay;
         }
@@ -888,6 +886,11 @@ class erLhcoreClassChatValidator {
             $chat->priority = $priority['priority'];
         }
 
+        if ($priority !== false && $priority['dep_id'] > 0) {
+            $chat->dep_id = $priority['dep_id'];
+            $chat->department = $department = erLhcoreClassModelDepartament::fetch($chat->dep_id);
+        }
+
         if ($department !== false && $department->department_transfer_id > 0) {
             if (
                 !(isset($department->bot_configuration_array['off_if_online']) && $department->bot_configuration_array['off_if_online'] == 1 && erLhcoreClassChat::isOnline($chat->dep_id,false, array('exclude_bot' => true, 'exclude_online_hours' => true)) === true) &&
@@ -897,10 +900,6 @@ class erLhcoreClassChatValidator {
                 $chat->transfer_timeout_ts = time();
                 $chat->transfer_timeout_ac = $department->transfer_timeout;
             }
-        }
-
-        if ($priority !== false && $priority['dep_id'] > 0) {
-            $chat->dep_id = $priority['dep_id'];
         }
 
         if (erLhcoreClassModelChatBlockedUser::isBlocked(array('log_block' => true, 'online_user_id' => $chat->online_user_id, 'country_code' => $chat->country_code, 'ip' => $chat->ip, 'dep_id' => $chat->dep_id, 'nick' => $chat->nick, 'email' => $chat->email))) {
@@ -1360,7 +1359,7 @@ class erLhcoreClassChatValidator {
 
     public static function getPriorityByAdditionalData($chat, $paramsExecution = array())
     {
-        $priorityRules = erLhAbstractModelChatPriority::getList(array('sort' => 'dep_id DESC, sort_priority DESC, priority DESC', 'customfilter' => array('dep_id = 0 OR dep_id = ' .(int)$chat->dep_id)));
+        $priorityRules = erLhAbstractModelChatPriority::getList(array('sort' => 'sort_priority DESC, priority DESC', 'customfilter' => array('dep_id = 0 OR dep_id = ' .(int)$chat->dep_id)));
 
         foreach ($priorityRules as $priorityRule) {
 
@@ -1401,7 +1400,7 @@ class erLhcoreClassChatValidator {
                         $valueToCompare = $chat->{$variableName};
                     }
                 } elseif (strpos($rule['field'],'{') === 0) {
-                    $valueToCompare = erLhcoreClassGenericBotWorkflow::translateMessage($rule['field'], array('chat' => $chat, 'args' => ['chat' => $chat]));
+                    $valueToCompare = erLhcoreClassGenericBotWorkflow::translateMessage($rule['field'], array('rule_value' => $rule['value'], 'chat' => $chat, 'args' => ['chat' => $chat]));
                 } elseif (strpos($rule['field'],'department_role') === 0) {
                     $valueToCompare = '';
                     $valueToCompareRole = \LiveHelperChat\Models\Brand\BrandMember::findOne(['filter' => ['dep_id' => $chat->dep_id]]);
@@ -1412,6 +1411,9 @@ class erLhcoreClassChatValidator {
 
                 if ($valueToCompare !== null) {
                     if ($rule['comparator'] == '=' && $rule['value'] != $valueToCompare) {
+                        $ruleMatched = false;
+                        break;
+                    } else if ($rule['comparator'] == '!=' && ($valueToCompare != $rule['value']) == false) {
                         $ruleMatched = false;
                         break;
                     } else if ($rule['comparator'] == '>' && ($valueToCompare > $rule['value']) == false) {
